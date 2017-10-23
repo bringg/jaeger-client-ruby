@@ -1,9 +1,12 @@
 module Jaeger
   module Client
     class Tracer
-      def initialize(collector, sender)
+      def initialize(collector,
+                     sender,
+                     sampler = Jaeger::Client::ConstSampler.new)
         @collector = collector
         @sender = sender
+        @sampler = sampler
       end
 
       def stop
@@ -21,13 +24,16 @@ module Jaeger
       #
       # @return [Span] The newly-started Span
       def start_span(operation_name, child_of: nil, start_time: Time.now, tags: {}, **)
-        context =
-          if child_of
-            parent_context = child_of.respond_to?(:context) ? child_of.context : child_of
-            SpanContext.create_from_parent_context(parent_context)
-          else
-            SpanContext.create_parent_context
+        if child_of
+          parent_context = child_of.respond_to?(:context) ? child_of.context : child_of
+          context = SpanContext.create_from_parent_context(parent_context)
+        else
+          context = SpanContext.create_parent_context
+          if @sampler.is_sampled?(context.trace_id, operation_name)
+            context.sampled = true
+            tags = tags.merge(@sampler.tags)
           end
+        end
         Span.new(context, operation_name, @collector, start_time: start_time, tags: tags)
       end
 

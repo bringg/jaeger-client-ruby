@@ -23,6 +23,40 @@ span = OpenTracing.start_span('span name')
 span.finish
 ```
 
+usage with a probabilistic sampler:
+
+```ruby
+require 'jaeger/client'
+OpenTracing.global_tracer = Jaeger::Client.build(host: 'localhost',
+                                                 port: 6831,
+                                                 service_name: 'echo',
+                                                 flush_interval: 5.0,
+                                                 sampler: {type: 'probabilistic', param: 0.001})
+
+span = OpenTracing.start_span('span name')
+span.finish
+```
+
+Usage with a ratelimiting sampler
+
+```ruby
+require 'jaeger/client'
+OpenTracing.global_tracer = Jaeger::Client.build(host: 'localhost',
+                                                 port: 6831,
+                                                 service_name: 'echo',
+                                                 flush_interval: 5.0,
+                                                 sampler: {type: 'ratelimiting', param: 1})
+
+span = OpenTracing.start_span('span name')
+span.finish
+```
+
+Available samplers and params:
+- 'const' sampler: true or false
+- 'probabilistic' sampler: a probability between 0.0 and 1.0
+- 'ratelimiting' sampler: the number of spans per second
+
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -37,4 +71,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/salemo
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

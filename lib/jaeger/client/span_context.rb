@@ -1,3 +1,4 @@
+# coding: utf-8
 module Jaeger
   module Client
     # SpanContext holds the data for a span that gets inherited to child spans
@@ -30,6 +31,30 @@ module Jaeger
         @trace_id = trace_id
         @baggage = baggage
         @flags = flags
+      end
+
+      def sampled=(sampled)
+        if sampled
+          @flags |= Flags::SAMPLED
+        else
+          @flags &= ~Flags::SAMPLED
+        end
+      end
+
+      def debug=(debug)
+        if debug
+          @flags |= Flags::DEBUG
+        else
+          @flags &= ~Flags::DEBUG
+        end
+      end
+
+      def sampled?
+        (@flags & Flags::SAMPLED) == Flags::SAMPLED
+      end
+
+      def debug?
+        (@flags & Flags::DEBUG) == Flags::DEBUG
       end
 
       def inspect

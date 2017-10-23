@@ -10,20 +10,21 @@ module Jaeger
       def send_span(span, end_time)
         context = span.context
         start_ts, duration = build_timestamps(span, end_time)
-
-        @buffer << Jaeger::Thrift::Span.new(
-          'traceIdLow' => context.trace_id,
-          'traceIdHigh' => 0,
-          'spanId' => context.span_id,
-          'parentSpanId' => context.parent_id,
-          'operationName' => span.operation_name,
-          'references' => [],
-          'flags' => context.flags,
-          'startTime' => start_ts,
-          'duration' => duration,
-          'tags' => build_tags(span.tags),
-          'logs' => build_logs(span.logs)
-        )
+        if context.sampled? || context.debug?
+          @buffer << Jaeger::Thrift::Span.new(
+            'traceIdLow' => context.trace_id,
+            'traceIdHigh' => 0,
+            'spanId' => context.span_id,
+            'parentSpanId' => context.parent_id,
+            'operationName' => span.operation_name,
+            'references' => [],
+            'flags' => context.flags,
+            'startTime' => start_ts,
+            'duration' => duration,
+            'tags' => build_tags(span.tags),
+            'logs' => build_logs(span.logs)
+            )
+        end
       end
 
       def retrieve
