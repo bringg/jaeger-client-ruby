@@ -5,6 +5,8 @@ Jaeger::Client
 
 OpenTracing Tracer implementation for Jaeger in Ruby
 
+This branch contain all the goodies from other forks such as http-transporter and references from [ActivePipe](https://github.com/ActivePipe/jaeger-client-ruby/tree/references) and Rate limit from [foodiefm](https://github.com/foodiefm/jaeger-client-ruby/tree/samplers).
+
 ## Installation
 
 Add this line to your application's Gemfile:
