@@ -37,17 +37,23 @@ module Jaeger
       end
 
       def start
+        Rails.logger.error("ThriftSender: Start @flush_span_count_limit: #{@flush_span_count_limit}, sleep: #{@flush_interval}")
         # Sending spans in a separate thread to avoid blocking the main thread.
         @thread = Thread.new do
           loop do
             loop do
+              Rails.logger.error("ThriftSender: checking for data")
               data = @collector.retrieve(@flush_span_count_limit)
               break if !data.present?
+              Rails.logger.error("ThriftSender: emitting")
               emit_batch(data)
             end
+            Rails.logger.error("ThriftSender: Sleeping for: #{@flush_interval} seconds")
             sleep @flush_interval
           end
         end
+
+        Rails.logger.error("ThriftSender: Thread status: #{thr.status}")
       end
 
       def stop
