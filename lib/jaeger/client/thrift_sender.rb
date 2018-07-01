@@ -7,12 +7,12 @@ require 'thread'
 module Jaeger
   module Client
     class ThriftSender
-      def initialize(service_name:, collector:, flush_interval:, transport:, flush_span_chunk_limit: 1)
+      def initialize(service_name:, collector:, flush_interval:, transport:, flush_span_count_limit: 1)
         @service_name = service_name
         @collector = collector
         @flush_interval = flush_interval
         @transport = transport
-        @flush_span_chunk_limit = flush_span_chunk_limit
+        @flush_span_count_limit = flush_span_count_limit
 
         @tags = [
           Jaeger::Thrift::Tag.new(
@@ -41,7 +41,7 @@ module Jaeger
         @thread = Thread.new do
           loop do
             loop do
-              data = @collector.retrieve(@flush_span_chunk_limit)
+              data = @collector.retrieve(@flush_span_count_limit)
               break if !data.present?
               emit_batch(data)
             end
