@@ -41,9 +41,8 @@ module Jaeger
         # Sending spans in a separate thread to avoid blocking the main thread.
         @thread = Thread.new do
           loop do
-            log("ThriftSender: Start @flush_span_count_limit: #{@flush_span_count_limit}, sleep: #{@flush_interval}")
             loop do
-              log("ThriftSender: Start @flush_span_count_limit: #{@flush_span_count_limit}, sleep: #{@flush_interval}")
+              log("ThriftSender: Start @flush_span_count_limit: #{@flush_span_count_limit}, sleep: #{@flush_interval}, object_id: #{@collector.object_id}")
               log("ThriftSender: checking for data")
               data = @collector.retrieve(@flush_span_count_limit)
               break if !data.present?

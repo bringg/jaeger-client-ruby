@@ -10,6 +10,7 @@ module Jaeger
       def send_span(span, end_time)
         context = span.context
         start_ts, duration = build_timestamps(span, end_time)
+        log("ThriftSender: Collector: send_span object_id: #{sel.object_id}")
 
         @buffer << Jaeger::Thrift::Span.new(
           'traceIdLow' => context.trace_id,
@@ -31,6 +32,10 @@ module Jaeger
       end
 
       private
+      def log(msg)
+        Rails.logger.error(msg) if Rails && Rails.logger.present?
+      end
+
       def build_references(references)
         references.map do |ref|
           Jaeger::Thrift::SpanRef.new(
