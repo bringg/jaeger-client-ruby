@@ -26,7 +26,6 @@ module Jaeger
           'logs' => build_logs(span.logs)
         )
       end
-
       def retrieve(limit = nil)
         @buffer.retrieve(limit)
       end

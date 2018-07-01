@@ -6,6 +6,14 @@ module Jaeger
         @sender = sender
       end
 
+      def get_collector
+        @collector
+      end
+
+      def get_sender
+        @sender
+      end
+
       def stop
         @sender.stop
       end
