@@ -14,6 +14,8 @@ module Jaeger
         start_ts, duration = build_timestamps(span, end_time)
         return if !context.sampled? && !context.debug?
 
+        log("ThriftSender: Collector @send_span: Collector.object_id: #{self.object_id}, @buffer: #{@buffer.object_id}")
+
         @buffer << Jaeger::Thrift::Span.new(
           'traceIdLow' => context.trace_id,
           'traceIdHigh' => 0,
@@ -29,11 +31,14 @@ module Jaeger
         )
       end
 
-      def retrieve
-        @buffer.retrieve
+      def retrieve(limit = nil)
+        @buffer.retrieve(limit)
       end
 
       private
+      def log(msg)
+        Rails.logger.error(msg) if Rails && Rails.logger.present?
+      end
 
       def build_references(references)
         references.map do |ref|
@@ -78,11 +83,12 @@ module Jaeger
           end
         end
 
-        def retrieve
+        def retrieve(limit = nil)
           @mutex.synchronize do
             elements = @buffer.dup
             @buffer.clear
             elements
+            #@buffer.shift(limit || @buffer.length)
           end
         end
       end
