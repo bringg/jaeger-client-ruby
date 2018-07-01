@@ -55,7 +55,7 @@ module Jaeger
           end
         end
 
-        Rails.logger.error("ThriftSender: Thread status: #{@thread.status}")
+        log("ThriftSender: Thread status: #{@thread.status}")
       end
 
       def stop
