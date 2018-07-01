@@ -14,7 +14,7 @@ module Jaeger
         start_ts, duration = build_timestamps(span, end_time)
         return if !context.sampled? && !context.debug?
 
-        log("ThriftSender: Collector @send_span: Collector.object_id: #{self.object_id}, @buffer: #{@buffer.object_id}")
+        log("ThriftSender: Collector @send_span: Collector.object_id: #{self.object_id}, @buffer: #{@buffer.object_id}, length: #{@buffer.length}")
 
         @buffer << Jaeger::Thrift::Span.new(
           'traceIdLow' => context.trace_id,
@@ -33,6 +33,10 @@ module Jaeger
 
       def retrieve(limit = nil)
         @buffer.retrieve(limit)
+      end
+
+      def length
+        @buffer.length
       end
 
       private
@@ -81,6 +85,10 @@ module Jaeger
             @buffer << element
             true
           end
+        end
+
+        def length
+          @buffer.length
         end
 
         def retrieve(limit = nil)
