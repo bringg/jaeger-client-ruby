@@ -10,7 +10,7 @@ module Jaeger
       def send_span(span, end_time)
         context = span.context
         start_ts, duration = build_timestamps(span, end_time)
-        log("ThriftSender: Collector: send_span object_id: #{sel.object_id}")
+        log("ThriftSender: Collector: send_span object_id: #{self.object_id}")
 
         @buffer << Jaeger::Thrift::Span.new(
           'traceIdLow' => context.trace_id,
