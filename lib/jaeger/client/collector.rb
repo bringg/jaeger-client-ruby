@@ -39,6 +39,10 @@ module Jaeger
         @buffer.length
       end
 
+      def buffer
+        @buffer
+      end
+
       private
       def log(msg)
         Rails.logger.error(msg) if Rails && Rails.logger.present?

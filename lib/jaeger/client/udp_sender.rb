@@ -45,7 +45,7 @@ module Jaeger
         # Sending spans in a separate thread to avoid blocking the main thread.
         @thread = Thread.new do
           loop do
-            log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, object_id: #{@collector.object_id}, length: #{@collector.length}")
+            log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
             emit_batch(@collector.retrieve)
             sleep @flush_interval
           end
