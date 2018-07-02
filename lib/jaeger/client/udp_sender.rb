@@ -46,7 +46,8 @@ module Jaeger
         @thread = Thread.new do
           loop do
             log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
-            emit_batch(@collector.retrieve)
+            spans = @collector.retrieve
+            emit_batch(spans)
             sleep @flush_interval
           end
         end

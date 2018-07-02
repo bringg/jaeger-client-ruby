@@ -78,15 +78,19 @@ module Jaeger
         end
       end
 
+      # https://vaneyckt.io/posts/ruby_concurrency_in_praise_of_condition_variables/
       class Buffer
         def initialize
           @buffer = []
           @mutex = Mutex.new
+          @cond_var = ConditionVariable.new
         end
 
         def <<(element)
           @mutex.synchronize do
             @buffer << element
+            log("ThriftSender: Buffer: << element #{length} + Signaling:")
+            @cond_var.signal
             true
           end
         end
@@ -95,13 +99,21 @@ module Jaeger
           @buffer.length
         end
 
-        def retrieve(limit = nil)
+        def retrieve(limit = nil, blocking = true)
           @mutex.synchronize do
-            elements = @buffer.dup
-            @buffer.clear
-            elements
-            #@buffer.shift(limit || @buffer.length)
+            log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, waiting for signal")
+            while blocking && @buffer.empty?
+              @cond_var.wait(mutex)
+            end
+            log("ThriftSender: Buffer: SIGNAL received")
+
+            @buffer.shift(limit || @buffer.length)
           end
+        end
+
+        private
+        def log(msg)
+          Rails.logger.error(msg) if Rails && Rails.logger.present?
         end
       end
     end
