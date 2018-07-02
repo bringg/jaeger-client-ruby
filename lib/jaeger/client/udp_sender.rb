@@ -51,6 +51,7 @@ module Jaeger
               emit_batch(spans)
               blocking = false # There is need to wait for a signal
             end
+            sleep @flush_interval
           end
         end
       end
@@ -66,7 +67,11 @@ module Jaeger
 
       private
       def log(msg)
-        Rails.logger.error(msg) if Rails && Rails.logger.present?
+        if Rails && Rails.logger.present?
+          Rails.logger.error(msg)
+        else
+          puts msg
+        end
       end
 
       def emit_batch(thrift_spans)

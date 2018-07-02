@@ -45,7 +45,11 @@ module Jaeger
 
       private
       def log(msg)
-        Rails.logger.error(msg) if Rails && Rails.logger.present?
+        if Rails && Rails.logger.present?
+          Rails.logger.error(msg)
+        else
+          puts msg
+        end
       end
 
       def build_references(references)
@@ -116,7 +120,11 @@ module Jaeger
 
         private
         def log(msg)
-          Rails.logger.error(msg) if Rails && Rails.logger.present?
+          if Rails && Rails.logger.present?
+            Rails.logger.error(msg)
+          else
+            puts msg
+          end
         end
       end
     end
