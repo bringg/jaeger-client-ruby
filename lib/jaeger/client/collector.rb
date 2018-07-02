@@ -104,7 +104,7 @@ module Jaeger
             log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, waiting for signal")
             if blocking
               while @buffer.empty?
-                @cond_var.wait(mutex)
+                @cond_var.wait(@mutex)
                 log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, waiting for signal - Spurious wakeup") if @buffer.empty?
               end
             end
