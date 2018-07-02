@@ -93,7 +93,7 @@ module Jaeger
         def <<(element)
           @mutex.synchronize do
             @buffer << element
-            log("ThriftSender: Buffer: << element #{length} + Signaling:")
+            log("ThriftSender: Buffer: << element #{length} + Signaling, @mutex: #{@mutex.object_id}, @@cond_var: #{@cond_var.object_id}")
             @cond_var.signal
             true
           end
@@ -105,7 +105,7 @@ module Jaeger
 
         def retrieve(limit = nil, blocking = true)
           @mutex.synchronize do
-            log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, waiting for signal")
+            log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, @mutex: #{@mutex.object_id}, @@cond_var: #{@cond_var.object_id}, waiting for signal")
             if blocking
               while @buffer.empty?
                 @cond_var.wait(@mutex)
