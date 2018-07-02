@@ -55,7 +55,11 @@ module Jaeger
       end
 
       def stop
-        @thread.terminate if @thread
+
+        if @thread
+          @thread.terminate
+          log("ThriftSender: stopped thread status: #{@thread.status}")
+        end
         loop do # Continue until there is no more information left in queue
           spans = @collector.retrieve(@flush_span_chunk_limit, false)
           break if spans.empty?
