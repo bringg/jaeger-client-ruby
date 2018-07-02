@@ -43,15 +43,26 @@ module Jaeger
         # Sending spans in a separate thread to avoid blocking the main thread.
         @thread = Thread.new do
           loop do
-            blocking = true
-            loop do # Continue until there is no more information left in queue
-              log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, limit #{@flush_span_chunk_limit}, block: #{blocking}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
-              spans = @collector.retrieve(@flush_span_chunk_limit, blocking)
-              break if spans.empty?
+            #if Rails && Rails.logger.present?
+              log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, limit #{@flush_span_chunk_limit}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
+              spans = @collector.retrieve(@flush_span_chunk_limit)
               emit_batch(spans)
-              blocking = false # There is need to wait for a signal
+            #end
+=begin
+
+            if Rails && Rails.logger.present?
+              blocking = true
+              loop do # Continue until there is no more information left in queue
+                log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, limit #{@flush_span_chunk_limit}, block: #{blocking}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
+                spans = @collector.retrieve(@flush_span_chunk_limit, blocking)
+                break if spans.empty?
+                emit_batch(spans)
+                blocking = false # There is need to wait for a signal
+              end
+              sleep @flush_interval
             end
-            sleep @flush_interval
+
+=end
           end
         end
       end
