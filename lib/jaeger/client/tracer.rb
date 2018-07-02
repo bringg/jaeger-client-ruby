@@ -10,7 +10,18 @@ module Jaeger
         @scope_manager = ScopeManager.new
       end
 
+      def restart
+        stop
+        start
+      end
+
+      def start
+        log('ThriftSender: start')
+        @sender.start
+      end
+
       def stop
+        log('ThriftSender: stop')
         @sender.stop
       end
 
@@ -220,6 +231,15 @@ module Jaeger
 
         active_scope = @scope_manager.active
         active_scope.span.context if active_scope
+      end
+
+      private
+      def log(msg)
+        if Rails && Rails.logger.present?
+          Rails.logger.error(msg)
+        else
+          puts msg
+        end
       end
     end
   end

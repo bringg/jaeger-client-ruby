@@ -38,7 +38,15 @@ module Jaeger
         flush_span_chunk_limit: flush_span_chunk_limit
       )
       sender.start
-      Tracer.new(collector, sender, sampler)
+      self.class.current = Tracer.new(collector, sender, sampler)
+    end
+
+    def self.current
+      @current || nil
+    end
+
+    def self.current=(tracer)
+      @current = tracer
     end
   end
 end

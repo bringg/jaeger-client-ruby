@@ -43,12 +43,14 @@ module Jaeger
         # Sending spans in a separate thread to avoid blocking the main thread.
         @thread = Thread.new do
           loop do
-              log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, limit #{@flush_span_chunk_limit}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
+              log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, limit #{@flush_span_chunk_limit}, @collector.object_id: #{@collector.object_id}, @buffer.object_id: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
               spans = @collector.retrieve(@flush_span_chunk_limit)
+              log('yoo')
               while !spans.empty?
                 emit_batch(spans)
+                log("ThriftSender: Start - next page pulling")
                 spans = @collector.retrieve(@flush_span_chunk_limit, false) # There is need to wait for a signal, we will empty the queue
-                log("ThriftSender: Start - next page")
+                log("ThriftSender: Start - next page iterating")
               end
           end
         end

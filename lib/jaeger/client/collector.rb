@@ -14,7 +14,7 @@ module Jaeger
         start_ts, duration = build_timestamps(span, end_time)
         return if !context.sampled? && !context.debug?
 
-        log("ThriftSender: Collector @send_span: Collector.object_id: #{self.object_id}, @buffer: #{@buffer.object_id}, length: #{@buffer.length}")
+        log("ThriftSender: Collector @send_span: @Collector.object_id: #{self.object_id}, @buffer.object_id: #{@buffer.object_id}, length: #{@buffer.length}")
 
         @buffer << Jaeger::Thrift::Span.new(
           'traceIdLow' => context.trace_id,
@@ -31,8 +31,8 @@ module Jaeger
         )
       end
 
-      def retrieve(limit = nil)
-        @buffer.retrieve(limit)
+      def retrieve(limit = nil, blocking = true)
+        @buffer.retrieve(limit, blocking)
       end
 
       def length
@@ -93,7 +93,7 @@ module Jaeger
         def <<(element)
           @mutex.synchronize do
             @buffer << element
-            log("ThriftSender: Buffer: << element #{length} + Signaling, @mutex: #{@mutex.object_id}, @@cond_var: #{@cond_var.object_id}")
+            log("ThriftSender: Buffer: << element #{length} + Signaling, @mutex.object_id: #{@mutex.object_id}, @cond_var.object_id: #{@cond_var.object_id}")
             @cond_var.signal
             true
           end
@@ -105,7 +105,7 @@ module Jaeger
 
         def retrieve(limit = nil, blocking = true)
           @mutex.synchronize do
-            log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, @mutex: #{@mutex.object_id}, @@cond_var: #{@cond_var.object_id}, waiting for signal")
+            log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, @mutex.object_id: #{@mutex.object_id}, @cond_var.object_id: #{@cond_var.object_id}, waiting for signal")
             if blocking
               while @buffer.empty?
                 @cond_var.wait(@mutex)
@@ -116,6 +116,8 @@ module Jaeger
 
             @buffer.shift(limit || @buffer.length)
           end
+        rescue Exception => e
+          log("ThriftSender: Exception: #{e.message}")
         end
 
         private
