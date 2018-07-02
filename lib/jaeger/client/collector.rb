@@ -102,8 +102,11 @@ module Jaeger
         def retrieve(limit = nil, blocking = true)
           @mutex.synchronize do
             log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, waiting for signal")
-            while blocking && @buffer.empty?
-              @cond_var.wait(mutex)
+            if blocking
+              while @buffer.empty?
+                @cond_var.wait(mutex)
+                log("ThriftSender: Buffer: retrieve element limit #{limit || @buffer.length}, waiting for signal - Spurious wakeup") if @buffer.empty?
+              end
             end
             log("ThriftSender: Buffer: SIGNAL received")
 

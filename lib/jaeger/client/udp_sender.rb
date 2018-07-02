@@ -7,13 +7,11 @@ require 'thread'
 module Jaeger
   module Client
     class UdpSender
-      def initialize(service_name:, host:, port:, collector:, flush_interval:
-                     #, flush_span_limit:
-      )
+      def initialize(service_name:, host:, port:, collector:, flush_interval: , flush_span_chunk_limit:)
         @service_name = service_name
         @collector = collector
         @flush_interval = flush_interval
-        #@flush_span_limit = flush_span_limit
+        @flush_span_chunk_limit = flush_span_chunk_limit
 
         @tags = [
           Jaeger::Thrift::Tag.new(
@@ -45,10 +43,12 @@ module Jaeger
         # Sending spans in a separate thread to avoid blocking the main thread.
         @thread = Thread.new do
           loop do
-            log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
-            spans = @collector.retrieve
-            emit_batch(spans)
-            sleep @flush_interval
+            if Rails && Rails.logger.present?
+              log("ThriftSender: Start @flush_interval: #{@flush_interval}, sleep: #{@flush_interval}, limit #{@flush_span_chunk_limit}, object_id: #{@collector.object_id}, @buffer: #{@collector.buffer.object_id}, length: #{@collector.buffer.length}")
+              spans = @collector.retrieve(@flush_span_chunk_limit)
+              emit_batch(spans)
+            end
+            #sleep @flush_interval
           end
         end
 
