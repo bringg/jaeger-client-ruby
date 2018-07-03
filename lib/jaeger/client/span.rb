@@ -25,7 +25,7 @@ module Jaeger
         @references = references
         @tags = tags.map { |key, value| ThriftTagBuilder.build(key, value) }
         @logs = []
-        @on_finish = on_finish
+        self.on_finish = on_finish
       end
 
       def on_finish=(on_finish)
