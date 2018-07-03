@@ -8,7 +8,7 @@ module Jaeger
     class Span
       attr_accessor :operation_name
 
-      attr_reader :context, :start_time, :references, :tags, :logs
+      attr_reader :context, :start_time, :references, :tags, :logs, :finished
 
       # Creates a new {Span}
       #
