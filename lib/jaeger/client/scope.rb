@@ -6,8 +6,6 @@ module Jaeger
     #
     # See http://www.opentracing.io for more information.
     class Scope
-      extend Forwardable
-      def_delegators :@span, :operation_name, :context, :set_tag, :set_baggage_item, :get_baggage_item, :log, :log_kv, :start_time, :references, :tags, :logs
 
       def initialize(span, scope_stack, finish_on_close:)
         @span = span
@@ -20,12 +18,6 @@ module Jaeger
       #
       # @return [Span]
       attr_reader :span
-
-      # Close scope and finish it's span
-      def finish
-        @finish_on_close = true
-        close
-      end
 
       # Close scope
       #

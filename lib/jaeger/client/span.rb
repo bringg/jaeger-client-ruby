@@ -17,7 +17,7 @@ module Jaeger
       # @param collector [Collector] span collector
       #
       # @return [Span] a new Span
-      def initialize(context, operation_name, collector, start_time: Time.now, references: [], tags: {})
+      def initialize(context, operation_name, collector, start_time: Time.now, references: [], tags: {}, on_finish: nil)
         @context = context
         @operation_name = operation_name
         @collector = collector
@@ -25,6 +25,11 @@ module Jaeger
         @references = references
         @tags = tags.map { |key, value| ThriftTagBuilder.build(key, value) }
         @logs = []
+        @on_finish = on_finish
+      end
+
+      def on_finish=(on_finish)
+        @on_finish = on_finish.respond_to?(:call) ? on_finish : nil
       end
 
       # Set a tag value on this span
@@ -76,6 +81,7 @@ module Jaeger
       #
       # @param end_time [Time] custom end time, if not now
       def finish(end_time: Time.now)
+        @on_finish.call(self) if @on_finish
         @collector.send_span(self, end_time)
       end
     end
