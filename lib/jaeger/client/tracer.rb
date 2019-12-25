@@ -10,6 +10,15 @@ module Jaeger
         @scope_manager = ScopeManager.new
       end
 
+      def restart
+        stop
+        start
+      end
+
+      def start
+        @sender.start
+      end
+
       def stop
         @sender.stop
       end
@@ -38,9 +47,6 @@ module Jaeger
       #   information.
       #
       #   If specified, the `references` parameter must be omitted.
-      # @param child_of [SpanContext, Span] SpanContext that acts as a parent to
-      #   the newly-started Span. If a Span instance is provided, its
-      #   context is automatically substituted.
       # @param references [Array<Reference>] An array of reference
       #   objects that identify one or more parent SpanContexts.
       # @param start_time [Time] When the Span started, if not now
